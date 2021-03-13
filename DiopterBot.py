@@ -50,11 +50,11 @@ class DiopterBot(discord.Client):
         # differentials_formatted = format(differentials, '.2f')
         diopters_and_diffs_formatted = format(diopters_and_diffs, '.2f')
         if differentials == 0:
-            await channel.send("To calculate cms from diopters, do 100 divided by the diopter value, ignoring the sign:\n`100/{} = {}cm`\nYou should be able to see {}cm with -{} myopia!".format(diopter_value_formatted, result, result, diopter_value_formatted))
+            await channel.send("To calculate diopters to cm, do 100 divided by the diopter value, ignoring the sign:\n`100/{} = {}cm`\nYou should be able to see {}cm with -{} myopia!".format(diopter_value_formatted, result, result, diopter_value_formatted))
         elif differentials < 0:
-            await channel.send("When wearing differentials, or any minus lens, the effective myopia of your eye reduces by the strength of the differentials, or glasses. We do the calculation with a diopter value of -{} instead of -{} because of this.\nTo calculate cms from diopters, do 100 divided by the diopter value, ignoring the sign:\n`100/{} = {}cm`\nYou should be able to see {}cm with -{} myopia!".format(diopters_and_diffs_formatted, diopter_value_formatted, diopters_and_diffs_formatted, result, result, diopters_and_diffs_formatted))
+            await channel.send("When wearing differentials, or any minus lens, the effective myopia of your eye reduces by the strength of the differentials, or glasses. We do the calculation with a diopter value of -{} instead of -{} because of this.\nTo calculate diopters from cm, do 100 divided by the diopter value, ignoring the sign:\n`100/{} = {}cm`\nYou should be able to see {}cm with -{} myopia!".format(diopters_and_diffs_formatted, diopter_value_formatted, diopters_and_diffs_formatted, result, result, diopters_and_diffs_formatted))
         elif differentials > 0:
-            await channel.send("If you are wearing plus lens the effective myopia of your eye increases by the strength of the lens. We do the calculation with a diopter value of -{} instead of -{} because of this.\nTo calculate cms from diopters, do 100 divided by the diopter value, ignoring the sign:\n`100/{} = {}cm`\nYou should be able to see {}cm with -{} myopia!".format(diopters_and_diffs_formatted, diopter_value_formatted, diopters_and_diffs_formatted, result, result, diopters_and_diffs_formatted))
+            await channel.send("If you are wearing plus lens the effective myopia of your eye increases by the strength of the lens. We do the calculation with a diopter value of -{} instead of -{} because of this.\nTo calculate diopters from cm, do 100 divided by the diopter value, ignoring the sign:\n`100/{} = {}cm`\nYou should be able to see {}cm with -{} myopia!".format(diopters_and_diffs_formatted, diopter_value_formatted, diopters_and_diffs_formatted, result, result, diopters_and_diffs_formatted))
 
     async def diopterbot_help(self, channel):
         await channel.send(
@@ -76,17 +76,31 @@ class DiopterBot(discord.Client):
             if len(request) == 2:
                 if request[1] == 'help':
                     await self.diopterbot_help(message.channel)
-                elif request[1].endswith('cm'):
+                elif request[1].endswith('cm') or request[1].endswith('cms'):
                     cm_value = request[1].split('c')[0]
                     await self.cm_to_diopters(message.channel, cm_value)
-                elif request[1].startswith('-'):
+                elif request[1].startswith('-') or request[1].replace('.', '', 1).isdigit():
                     diopter_value = request[1]
                     await self.diopters_to_cm(message.channel, diopter_value)
             elif len(request) == 3:
-                if request[1].endswith('cm'):
+                if request[2].startswith('centi') or request[2].startswith('cm') or request[2].startswith('cms'):
+                    try:
+                        float(request[1])
+                    except ValueError:
+                        return
+                    cm_value = request[1]
+                    await self.cm_to_diopters(message.channel, cm_value)
+                elif request[2].startswith('d'):
+                    try:
+                        float(request[1])
+                    except ValueError:
+                        return
+                    diopter_value = request[1]
+                    await self.diopters_to_cm(message.channel, diopter_value)
+                elif request[1].endswith('cm') or request[1].endswith('cms') and request[2].startswith('-') or request[2].isdigit():
                     cm_value = request[1].split('c')[0]
                     await self.cm_to_diopters(message.channel, cm_value, differentials=request[2])
-                elif request[1].startswith('-'):
+                elif request[1].startswith('-') or request[1].isdigit() and request[2].startswith('-') or request[2].isdigit():
                     diopter_value = request[1]
                     await self.diopters_to_cm(message.channel, diopter_value, differentials=request[2])
 
