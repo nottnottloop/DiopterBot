@@ -3,6 +3,7 @@ import logging
 
 logging.basicConfig(level=logging.INFO)
 
+# thar be dragons here
 class DiopterBot(discord.Client):
     async def on_ready(self):
         print('Logged in as {0.user}'.format(self))
@@ -15,7 +16,7 @@ class DiopterBot(discord.Client):
         except ZeroDivisionError:
             await channel.send("You can't see anything? :grimacing:")
             return
-        formatted_cms = format(cm_value, '.0f')
+        formatted_cms = format(cm_value, '.2f')
         formatted_raw_result = format(result, '.2f')
         result_with_diffs = result - differentials
         if result_with_diffs % 0.25 >= 0.125:
@@ -76,7 +77,7 @@ class DiopterBot(discord.Client):
             if len(request) == 2:
                 if request[1] == 'help':
                     await self.diopterbot_help(message.channel)
-                elif request[1].endswith('c'):
+                elif request[1].endswith('c') or request[1].endswith('cm') or request[1].endswith('cms'):
                     cm_value = request[1].split('c')[0]
                     await self.cm_to_diopters(message.channel, cm_value)
                 elif request[1].startswith('-') or request[1].replace('.', '', 1).isdigit():
