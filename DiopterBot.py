@@ -1,0 +1,85 @@
+import discord
+import logging
+
+logging.basicConfig(level=logging.INFO)
+
+class DiopterBot(discord.Client):
+    async def on_ready(self):
+        print('Logged in as {0.user}'.format(self))
+
+    async def cm_to_diopters(self, channel, cm_value, differentials=0):
+        cm_value = abs(float(cm_value))
+        differentials = float(differentials)
+        try:
+            result = round((100/cm_value), 2)
+        except ZeroDivisionError:
+            await channel.send("You can't see anything? :grimacing:")
+            return
+        formatted_cms = format(cm_value, '.0f')
+        formatted_raw_result = format(result, '.2f')
+        result_with_diffs = result - differentials
+        if result_with_diffs % 0.25 >= 0.125:
+            formatted_result = format(0.25 * ((result_with_diffs // 0.25) + 1), '.2f')
+        else:
+            formatted_result = format(0.25 * (result_with_diffs // 0.25), '.2f')
+        if differentials == 0:
+            await channel.send("To calculate diopters, do 100 divided by the cm value, and add on a minus sign:\n`100/{}cm = -{} diopters\nMyopia of eye approximately -{}`".format(formatted_cms, formatted_raw_result, formatted_result))
+        elif differentials < 0:
+            await channel.send("To calculate diopters, do 100 divided by the cm value, and add on a minus sign.\nBecause you measured with differentials, add the strength of your differentials as well:\n`100/{}cm = -{} diopters\n-{}{} = -{}\nMyopia of eye approximately -{}`".format(formatted_cms, result, result, differentials, result_with_diffs, formatted_result))
+        elif differentials > 0:
+            await channel.send("To calculate diopters, do 100 divided by the cm value, and add on a minus sign.\nBecause you measured with plus lens, add the strength of your plus lens as well:\n`100/{}cm = -{} diopters\n-{}+{} = -{}\nMyopia of eye approximately -{}`".format(formatted_cms, result, result, differentials, result_with_diffs, formatted_result))
+
+    async def diopters_to_cm(self, channel, diopter_value, differentials=0):
+        diopter_value = float(diopter_value)
+        differentials = float(differentials)
+        if diopter_value > differentials and differentials != 0:
+            await channel.send(
+                "AHHHHHHH MY EYES :sob::sob::sob:")
+            return
+        diopter_value = abs(float(diopter_value))
+        diopters_and_diffs = diopter_value + differentials
+        try:
+            result = round((100/float(diopter_value + differentials)), 2)
+        except ZeroDivisionError:
+            await channel.send(":infinity:\nIn theory, these are not your differentials but full strength glasses that correct you to perfect vision.\nYou can see ∞!")
+            return
+        diopter_value_formatted = format(diopter_value, '.2f')
+        # differentials_formatted = format(differentials, '.2f')
+        diopters_and_diffs_formatted = format(diopters_and_diffs, '.2f')
+        if differentials == 0:
+            await channel.send("To calculate cms from diopters, do 100 divided by the diopter value, ignoring the sign:\n`100/{} = {}cm`\nYou should be able to see {}cm with -{} myopia!".format(diopter_value_formatted, result, result, diopter_value_formatted))
+        elif differentials < 0:
+            await channel.send("When wearing differentials, or any minus lens, the effective myopia of your eye reduces by the strength of the differentials, or glasses. We do the calculation with a diopter value of -{} instead of -{} because of this.\nTo calculate cms from diopters, do 100 divided by the diopter value, ignoring the sign:\n`100/{} = {}cm`\nYou should be able to see {}cm with -{} myopia!".format(diopters_and_diffs_formatted, diopter_value_formatted, diopters_and_diffs_formatted, result, result, diopters_and_diffs_formatted))
+        elif differentials > 0:
+            await channel.send("If you are wearing plus lens the effective myopia of your eye increases by the strength of the lens. We do the calculation with a diopter value of -{} instead of -{} because of this.\nTo calculate cms from diopters, do 100 divided by the diopter value, ignoring the sign:\n`100/{} = {}cm`\nYou should be able to see {}cm with -{} myopia!".format(diopters_and_diffs_formatted, diopter_value_formatted, diopters_and_diffs_formatted, result, result, diopters_and_diffs_formatted))
+
+    async def on_message(self, message):
+        if message.content == self.user:
+            return
+
+        if message.content.strip().startswith('convert'):
+            request = message.content.split()
+            # print(request)
+            # print(len(request))
+            if not 1 < len(request) < 4:
+                return
+            if len(request) == 2:
+                if request[1].endswith('cm'):
+                    cm_value = request[1].split('c')[0]
+                    await self.cm_to_diopters(message.channel, cm_value)
+                elif request[1].startswith('-'):
+                    diopter_value = request[1]
+                    await self.diopters_to_cm(message.channel, diopter_value)
+            elif len(request) == 3:
+                if request[1].endswith('cm'):
+                    cm_value = request[1].split('c')[0]
+                    await self.cm_to_diopters(message.channel, cm_value, differentials=request[2])
+                elif request[1].startswith('-'):
+                    diopter_value = request[1]
+                    await self.diopters_to_cm(message.channel, diopter_value, differentials=request[2])
+
+        if message.content.strip().lower().startswith('diopterbot') and len(message.content.split()) < 3:
+            await message.channel.send("DiopterBot can calculate the diopter value from a cm value that you give it, and vice versa. It can also perform calculations with differentials and tells you how to work out calculations for the future. DiopterBot was made by NottNott!\n\nTo use DiopterBot, type `convert (value) (differentials)`, only giving a value for differentials if you want to include this in the calculation. Examples:\n`convert 7cm` will convert 7cm into diopters\n`convert -2` will tell you the number of cms you can see with -2 myopia\n`convert 20cm -1` will tell you your myopia value if you measured 20cm with a -1 lens (differential) in that eye.")
+
+client = DiopterBot()
+client.run('TOKEN')
