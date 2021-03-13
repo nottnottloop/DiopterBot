@@ -22,12 +22,15 @@ class DiopterBot(discord.Client):
             formatted_result = format(0.25 * ((result_with_diffs // 0.25) + 1), '.2f')
         else:
             formatted_result = format(0.25 * (result_with_diffs // 0.25), '.2f')
+        result = format(result, '.2f')
+        differentials_formatted = format(differentials, '.2f')
+        result_with_diffs = format(result_with_diffs, '.2f')
         if differentials == 0:
             await channel.send("To calculate diopters, do 100 divided by the cm value, and add on a minus sign:\n`100/{}cm = -{} diopters\nMyopia of eye approximately -{}`".format(formatted_cms, formatted_raw_result, formatted_result))
         elif differentials < 0:
-            await channel.send("To calculate diopters, do 100 divided by the cm value, and add on a minus sign.\nBecause you measured with differentials, add the strength of your differentials as well:\n`100/{}cm = -{} diopters\n-{}{} = -{}\nMyopia of eye approximately -{}`".format(formatted_cms, result, result, differentials, result_with_diffs, formatted_result))
+            await channel.send("To calculate diopters, do 100 divided by the cm value, and add on a minus sign.\nBecause you measured with differentials, add the strength of your differentials as well:\n`100/{}cm = -{} diopters\n-{}{} = -{}\nMyopia of eye approximately -{}`".format(formatted_cms, result, result, differentials_formatted, result_with_diffs, formatted_result))
         elif differentials > 0:
-            await channel.send("To calculate diopters, do 100 divided by the cm value, and add on a minus sign.\nBecause you measured with plus lens, add the strength of your plus lens as well:\n`100/{}cm = -{} diopters\n-{}+{} = -{}\nMyopia of eye approximately -{}`".format(formatted_cms, result, result, differentials, result_with_diffs, formatted_result))
+            await channel.send("To calculate diopters, do 100 divided by the cm value, and add on a minus sign.\nBecause you measured with plus lens, add the strength of your plus lens as well:\n`100/{}cm = -{} diopters\n-{}+{} = -{}\nMyopia of eye approximately -{}`".format(formatted_cms, result, result, differentials_formatted, result_with_diffs, formatted_result))
 
     async def diopters_to_cm(self, channel, diopter_value, differentials=0):
         diopter_value = float(diopter_value)
