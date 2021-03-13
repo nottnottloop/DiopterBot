@@ -105,9 +105,17 @@ class DiopterBot(discord.Client):
                     diopter_value = request[1]
                     await self.diopters_to_cm(message.channel, diopter_value)
                 elif request[1].endswith('cm') or request[1].endswith('cms') and request[2].startswith('-') or request[2].isdigit():
+                    if request[2].endswith('d') or request[2].endswith('diopters') or request[2].endswith('dioptres'):
+                        request[2] = request[2].split('d')[0]
+                    if request[1].endswith('d') or request[1].endswith('diopters') or request[1].endswith('dioptres'):
+                        request[1] = request[1].split('d')[0]
                     cm_value = request[1].split('c')[0]
                     await self.cm_to_diopters(message.channel, cm_value, differentials=request[2])
-                elif request[1].startswith('-') or request[1].isdigit() and request[2].startswith('-') or request[2].isdigit():
+                elif request[1].startswith('-') or request[1].isdigit() and request[2].startswith('-') or request[2].isdigit() or request[1].endswith('d') or request[1].endswith('diopters') or request[1].endswith('dioptres'):
+                    if request[2].endswith('d') or request[2].endswith('diopters') or request[2].endswith('dioptres'):
+                        request[2] = request[2].split('d')[0]
+                    if request[1].endswith('d') or request[1].endswith('diopters') or request[1].endswith('dioptres'):
+                        request[1] = request[1].split('d')[0]
                     diopter_value = request[1]
                     await self.diopters_to_cm(message.channel, diopter_value, differentials=request[2])
 
