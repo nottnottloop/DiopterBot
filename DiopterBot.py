@@ -53,18 +53,27 @@ class DiopterBot(discord.Client):
         elif differentials > 0:
             await channel.send("If you are wearing plus lens the effective myopia of your eye increases by the strength of the lens. We do the calculation with a diopter value of -{} instead of -{} because of this.\nTo calculate cms from diopters, do 100 divided by the diopter value, ignoring the sign:\n`100/{} = {}cm`\nYou should be able to see {}cm with -{} myopia!".format(diopters_and_diffs_formatted, diopter_value_formatted, diopters_and_diffs_formatted, result, result, diopters_and_diffs_formatted))
 
+    async def diopterbot_help(self, channel):
+        await channel.send(
+            "DiopterBot can calculate the diopter value from a cm value that you give it, and vice versa. It can also perform calculations with differentials and tells you how to work out calculations for the future.\n\nTo use DiopterBot, type `convert (value) (differentials)`, only giving a value for differentials if you want to include this in the calculation. Examples:\n`convert 7cm` will convert 7cm into diopters\n`convert -2` will tell you the number of cms you can see with -2 myopia\n`convert 20cm -1` will tell you your myopia value if you measured 20cm with a -1 lens (differential) in that eye.")
+
     async def on_message(self, message):
         if message.content == self.user:
             return
 
         if message.content.strip().startswith('convert'):
-            request = message.content.split()
+            raw = message.content.lower()
+            request = raw.split()
             # print(request)
             # print(len(request))
+            if request[0] == 'convert' and len(request) < 2:
+                await self.diopterbot_help(message.channel)
             if not 1 < len(request) < 4:
                 return
             if len(request) == 2:
-                if request[1].endswith('cm'):
+                if request[1] == 'help':
+                    await self.diopterbot_help(message.channel)
+                elif request[1].endswith('cm'):
                     cm_value = request[1].split('c')[0]
                     await self.cm_to_diopters(message.channel, cm_value)
                 elif request[1].startswith('-'):
@@ -78,8 +87,8 @@ class DiopterBot(discord.Client):
                     diopter_value = request[1]
                     await self.diopters_to_cm(message.channel, diopter_value, differentials=request[2])
 
-        if message.content.strip().lower().startswith('diopterbot') and len(message.content.split()) < 3:
-            await message.channel.send("DiopterBot can calculate the diopter value from a cm value that you give it, and vice versa. It can also perform calculations with differentials and tells you how to work out calculations for the future. DiopterBot was made by NottNott!\n\nTo use DiopterBot, type `convert (value) (differentials)`, only giving a value for differentials if you want to include this in the calculation. Examples:\n`convert 7cm` will convert 7cm into diopters\n`convert -2` will tell you the number of cms you can see with -2 myopia\n`convert 20cm -1` will tell you your myopia value if you measured 20cm with a -1 lens (differential) in that eye.")
+        if message.content.strip().startswith('diopterbot') and len(message.content.split()) < 3:
+            await self.diopterbot_help(message.channel)
 
 client = DiopterBot()
 client.run('TOKEN')
