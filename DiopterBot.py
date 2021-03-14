@@ -64,6 +64,7 @@ class DiopterBot(discord.Client):
     async def on_message(self, message):
         if message.content == self.user:
             return
+        message.content = message.content.lower()
 
         if message.content.lower().strip().startswith('convert'):
             raw = message.content.lower()
@@ -119,7 +120,7 @@ class DiopterBot(discord.Client):
                     diopter_value = request[1]
                     await self.diopters_to_cm(message.channel, diopter_value, differentials=request[2])
 
-        if message.content.strip().startswith('diopterbot') and len(message.content.split()) < 3:
+        if message.content.lower().strip().startswith('diopterbot') and len(message.content.split()) < 3:
             await self.diopterbot_help(message.channel)
 
 client = DiopterBot()
