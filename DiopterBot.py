@@ -65,7 +65,7 @@ class DiopterBot(discord.Client):
         if message.content == self.user:
             return
 
-        if message.content.strip().startswith('convert'):
+        if message.content.lower().strip().startswith('convert'):
             raw = message.content.lower()
             request = raw.split()
             # print(request)
