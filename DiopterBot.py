@@ -1,16 +1,38 @@
 import discord
 import logging
+import random
+import asyncio
 
 logging.basicConfig(level=logging.INFO)
+
+easter_egg_played = False
+
+easter_eggs_file = open('easter_eggs.txt')
+easter_eggs = easter_eggs_file.readlines()
+easter_eggs_file.close()
 
 # thar be dragons here
 class DiopterBot(discord.Client):
     async def on_ready(self):
         print('Logged in as {0.user}'.format(self))
 
+    async def easter_egg(self, channel):
+        global easter_egg_played
+        if not easter_egg_played:
+            egg = random.randint(0, (len(easter_eggs) - 1))
+            await channel.send(easter_eggs[egg])
+        else:
+            return
+        easter_egg_played = True
+        await asyncio.sleep(1200)
+        easter_egg_played = False
+
     async def cm_to_diopters(self, channel, cm_value, differentials=0):
         cm_value = abs(float(cm_value))
         differentials = float(differentials)
+        if cm_value > 1000 or differentials > 40 or differentials < -40:
+            await self.easter_egg(channel)
+            return
         try:
             result = round((100/cm_value), 2)
         except ZeroDivisionError:
@@ -36,9 +58,11 @@ class DiopterBot(discord.Client):
     async def diopters_to_cm(self, channel, diopter_value, differentials=0):
         diopter_value = float(diopter_value)
         differentials = float(differentials)
+        if diopter_value > 50 or diopter_value < -50 or differentials > 40 or differentials < -40:
+            await self.easter_egg(channel)
+            return
         if diopter_value > differentials and differentials != 0:
-            await channel.send(
-                "AHHHHHHH MY EYES :sob::sob::sob:")
+            await self.easter_egg(channel)
             return
         diopter_value = abs(float(diopter_value))
         diopters_and_diffs = diopter_value + differentials
