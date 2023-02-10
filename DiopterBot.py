@@ -83,7 +83,7 @@ class DiopterBot(discord.Client):
 
     async def diopterbot_help(self, channel):
         await channel.send(
-            "DiopterBot can calculate the diopter value from a cm value that you give it, and vice versa. It can also perform calculations with differentials and tells you how to work out calculations for the future.\n\nTo use DiopterBot, type `convert (value) (differentials)`, only giving a value for differentials if you want to include this in the calculation. Examples:\n`convert 7cm` will convert 7cm into diopters\n`convert -2` will tell you the number of cms you can see with -2 myopia\n`convert 20cm -1` will tell you your myopia value if you measured 20cm with a -1 lens (differential) in that eye.")
+            "DiopterBot can calculate the diopter value from a cm value that you give it, and vice versa. It can also perform calculations with differentials and tells you how to work out calculations for the future.\n\nTo use DiopterBot, type `convert (value) (differentials)`, only giving a value for differentials if you want to include this in the calculation. Examples:\n`convert 7cm` will convert 7cm into diopters\n`convert -2` will tell you the number of cms you can see with -2 myopia\n`convert 20cm -1` will tell you your myopia value if you measured 20cm with a -1 lens (differential) in that eye.\nBot hosted by @Wolfo, coded by @NottNott")
 
     async def on_message(self, message):
         if message.content == self.user:
@@ -143,9 +143,11 @@ class DiopterBot(discord.Client):
                         request[1] = request[1].split('d')[0]
                     diopter_value = request[1]
                     await self.diopters_to_cm(message.channel, diopter_value, differentials=request[2])
-
+                    
         if message.content.lower().strip().startswith('diopterbot') and len(message.content.split()) < 3:
             await self.diopterbot_help(message.channel)
 
-client = DiopterBot()
+intents = discord.Intents.default()
+intents.message_content = True
+client = DiopterBot(intents=intents)
 client.run('TOKEN')
