@@ -12,6 +12,7 @@ Released under Creative Commons Attribution ShareAlike 4.0
 Create a file called 'key.py' in the same directory as diopterbot2 and create a variable called TOKEN with your Discord auth token
 
 `> key.py`
+
 `TOKEN = 'token goes here'`
 
 Optionally create a file called 'easter_eggs.txt', with an easter egg on each line to be displayed when someone requests something silly
